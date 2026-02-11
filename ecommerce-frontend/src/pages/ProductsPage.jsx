@@ -25,9 +25,51 @@ const ProductsPage = () => {
   }, [page, category]);
 
   const columns = [
-    { title: "Name", dataIndex: "title" },
-    { title: "Category", dataIndex: "category" },
-    { title: "MRP", dataIndex: "price" },
+    {
+      title: "Image",
+      dataIndex: "image",
+      render: (image) =>
+        image ? (
+          <img
+            src={`http://localhost:3000/uploads/${image}`}
+            alt="product"
+            style={{ width: 50, height: 50, objectFit: "cover" }}
+          />
+        ) : (
+          "No Image"
+        ),
+    },
+    {
+      title: "Name",
+      dataIndex: "title",
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+    },
+    {
+      title: "MRP",
+      dataIndex: "mrp",
+      render: (value) => `₹${value}`,
+    },
+    {
+      title: "Distributor Rate",
+      dataIndex: "distributorRate",
+      render: (value) => `₹${value}`,
+    },
+    {
+      title: "Retailer Price",
+      dataIndex: "retailerPrice",
+      render: (value) => `₹${value}`,
+    },
+    {
+      title: "UOM",
+      render: (_, record) => `${record.uom} ${record.uomUnit}`,
+    },
+    {
+      title: "CRT",
+      dataIndex: "crt",
+    },
     {
       title: "Actions",
       render: (_, record) => (

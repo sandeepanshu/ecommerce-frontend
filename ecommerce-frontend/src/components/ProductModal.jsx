@@ -26,18 +26,49 @@ const ProductModal = ({ open, onClose, product, refresh }) => {
     }
   }, [product]);
 
+  useEffect(() => {
+    if (product) {
+      form.setFieldsValue({
+        ...product,
+        image: product.image
+          ? [
+              {
+                uid: "-1",
+                name: product.image,
+                status: "done",
+                url: `http://localhost:3000/uploads/${product.image}`,
+              },
+            ]
+          : [],
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [product, form]);
+
   const handleSubmit = async () => {
     const values = await form.validateFields();
 
-    // Convert image upload to filename
-    if (values.image && values.image.file) {
-      values.image = values.image.file.name;
+    const formData = new FormData();
+
+    Object.keys(values).forEach((key) => {
+      if (key !== "image") {
+        formData.append(key, values[key]);
+      }
+    });
+
+    if (
+      values.image &&
+      values.image.length > 0 &&
+      values.image[0].originFileObj
+    ) {
+      formData.append("image", values.image[0].originFileObj);
     }
 
     if (product) {
-      await updateProduct(product._id, values);
+      await updateProduct(product._id, formData);
     } else {
-      await createProduct(values);
+      await createProduct(formData);
     }
 
     refresh();
@@ -152,8 +183,18 @@ const ProductModal = ({ open, onClose, product, refresh }) => {
           </Col>
         </Row>
 
-        <Form.Item name="image" label="Image">
-          <Upload beforeUpload={() => false} maxCount={1}>
+        <Form.Item
+          name="image"
+          label="Image"
+          valuePropName="fileList"
+          getValueFromEvent={(e) => {
+            if (Array.isArray(e)) {
+              return e;
+            }
+            return e?.fileList;
+          }}
+        >
+          <Upload beforeUpload={() => false} maxCount={1} listType="picture">
             <Button icon={<UploadOutlined />}>Choose File</Button>
           </Upload>
         </Form.Item>
